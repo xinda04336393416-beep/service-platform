@@ -60,6 +60,11 @@ export default function DashboardPage() {
   const [assigning, setAssigning] = useState(false)
   const [assignError, setAssignError] = useState<string | null>(null)
 
+  // 派单成功弹窗
+  type ModalData = { orderId: string; customerName: string; workerName: string }
+  const [modal, setModal] = useState<ModalData | null>(null)
+  const [copied, setCopied] = useState(false)
+
   const fetchOrders = useCallback(async () => {
     const res = await fetch('/api/orders')
     if (res.ok) setOrders(await res.json())
@@ -121,10 +126,18 @@ export default function DashboardPage() {
       const data = await res.json()
       setAssignError(data.error ?? '派单失败，请重试')
     } else {
+      const workerName = workers.find(w => w.id === selectedWorkerId)?.name ?? ''
+      setModal({ orderId: selectedOrder.id, customerName: selectedOrder.customer_name, workerName })
       setSelectedOrder(null)
       await fetchOrders()
     }
     setAssigning(false)
+  }
+
+  async function copyLink(url: string) {
+    await navigator.clipboard.writeText(url)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
   }
 
   const formField = (
@@ -338,6 +351,56 @@ export default function DashboardPage() {
         )}
 
       </div>
+
+      {/* ── 派单成功弹窗 ── */}
+      {modal && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6">
+            <div className="flex items-center gap-2 mb-5">
+              <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center text-green-600 text-sm">✓</div>
+              <h3 className="text-lg font-bold text-gray-900">派单成功</h3>
+            </div>
+
+            <div className="space-y-2 mb-4">
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-500">客户</span>
+                <span className="font-medium text-gray-900">{modal.customerName}</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-500">师傅</span>
+                <span className="font-medium text-gray-900">{modal.workerName}</span>
+              </div>
+            </div>
+
+            <div className="bg-gray-50 rounded-xl p-3 mb-5">
+              <p className="text-xs text-gray-400 mb-1.5">客户查看链接</p>
+              <p className="text-xs text-blue-600 break-all font-mono leading-relaxed">
+                {typeof window !== 'undefined' ? `${window.location.origin}/track/${modal.orderId}` : ''}
+              </p>
+            </div>
+
+            <div className="flex gap-2">
+              <button
+                onClick={() => copyLink(`${window.location.origin}/track/${modal.orderId}`)}
+                className={[
+                  'flex-1 text-sm font-medium py-2.5 rounded-xl transition-colors',
+                  copied
+                    ? 'bg-green-100 text-green-700'
+                    : 'bg-blue-600 hover:bg-blue-700 text-white',
+                ].join(' ')}
+              >
+                {copied ? '已复制 ✓' : '复制链接'}
+              </button>
+              <button
+                onClick={() => { setModal(null); setCopied(false) }}
+                className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium py-2.5 rounded-xl transition-colors"
+              >
+                关闭
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
