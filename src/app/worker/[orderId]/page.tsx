@@ -59,7 +59,7 @@ export default function WorkerPage() {
 
   useEffect(() => {
     if (!orderId) return
-    fetch(`/api/orders/${orderId}`)
+    fetch(`/service/api/orders/${orderId}`)
       .then(r => r.json())
       .then(data => {
         if (data.error) setFetchError(data.error)
@@ -73,7 +73,7 @@ export default function WorkerPage() {
     if (!order) return false
     setActing(true)
     setActionError(null)
-    const res = await fetch(`/api/orders/${order.id}`, {
+    const res = await fetch(`/service/api/orders/${order.id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ ...body, worker_id: order.current_worker_id }),

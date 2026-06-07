@@ -50,7 +50,7 @@ export default function TrackPage() {
 
   useEffect(() => {
     if (!orderId) return
-    fetch(`/api/track/${orderId}`)
+    fetch(`/service/api/track/${orderId}`)
       .then(r => r.json())
       .then(d => {
         if (d.error) setError(d.error)

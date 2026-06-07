@@ -66,14 +66,14 @@ export default function DashboardPage() {
   const [copied, setCopied] = useState(false)
 
   const fetchOrders = useCallback(async () => {
-    const res = await fetch('/api/orders')
+    const res = await fetch('/service/api/orders')
     if (res.ok) setOrders(await res.json())
     setLoading(false)
   }, [])
 
   useEffect(() => {
     fetchOrders()
-    fetch('/api/workers').then(r => r.json()).then(setWorkers)
+    fetch('/service/api/workers').then(r => r.json()).then(setWorkers)
   }, [fetchOrders])
 
   async function handleSubmit(e: React.FormEvent) {
@@ -82,7 +82,7 @@ export default function DashboardPage() {
     setFormError(null)
     setSuccessMsg(null)
 
-    const res = await fetch('/api/orders', {
+    const res = await fetch('/service/api/orders', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(form),
@@ -112,7 +112,7 @@ export default function DashboardPage() {
     setAssigning(true)
     setAssignError(null)
 
-    const res = await fetch(`/api/orders/${selectedOrder.id}`, {
+    const res = await fetch(`/service/api/orders/${selectedOrder.id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
