@@ -67,7 +67,7 @@ server {
     listen 80;
     server_name <你的域名或IP>;
 
-    location / {
+    location /service {
         proxy_pass http://127.0.0.1:3001;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
