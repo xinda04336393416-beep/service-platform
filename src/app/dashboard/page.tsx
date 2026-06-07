@@ -136,8 +136,23 @@ export default function DashboardPage() {
     setAssigning(false)
   }
 
+  async function copyText(text: string) {
+    try {
+      await navigator.clipboard.writeText(text)
+      return true
+    } catch {
+      const el = document.createElement('textarea')
+      el.value = text
+      document.body.appendChild(el)
+      el.select()
+      document.execCommand('copy')
+      document.body.removeChild(el)
+      return true
+    }
+  }
+
   async function copyLink(url: string) {
-    await navigator.clipboard.writeText(url)
+    await copyText(url)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }
@@ -390,7 +405,7 @@ export default function DashboardPage() {
               </p>
               <button
                 onClick={async () => {
-                  await navigator.clipboard.writeText(`orderId=${modal.orderId}&token=${modal.workerToken}`)
+                  await copyText(`orderId=${modal.orderId}&token=${modal.workerToken}`)
                   setCopiedWorker(true)
                   setTimeout(() => setCopiedWorker(false), 2000)
                 }}
