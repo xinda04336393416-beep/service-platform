@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import crypto from 'crypto'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 
 export async function GET(
@@ -31,9 +32,12 @@ export async function PATCH(
   if (action === 'assign') {
     const { worker_id, eta_minutes } = body
 
+    const worker_token = crypto.randomBytes(32).toString('hex')
+    const worker_token_expires_at = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
+
     const { error: e1 } = await supabaseAdmin
       .from('service_orders')
-      .update({ current_worker_id: worker_id, current_status: 'ASSIGNED' })
+      .update({ current_worker_id: worker_id, current_status: 'ASSIGNED', worker_token, worker_token_expires_at })
       .eq('id', id)
     if (e1) return NextResponse.json({ error: e1.message }, { status: 500 })
 
@@ -42,7 +46,7 @@ export async function PATCH(
       .insert({ order_id: id, worker_id, eta_minutes: eta_minutes ?? null, event_type: 'ASSIGNED' })
     if (e2) return NextResponse.json({ error: e2.message }, { status: 500 })
 
-    return NextResponse.json({ ok: true })
+    return NextResponse.json({ ok: true, worker_token, order_id: id })
   }
 
   if (action === 'depart') {

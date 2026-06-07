@@ -61,9 +61,10 @@ export default function DashboardPage() {
   const [assignError, setAssignError] = useState<string | null>(null)
 
   // 派单成功弹窗
-  type ModalData = { orderId: string; customerName: string; workerName: string }
+  type ModalData = { orderId: string; customerName: string; workerName: string; workerToken: string }
   const [modal, setModal] = useState<ModalData | null>(null)
   const [copied, setCopied] = useState(false)
+  const [copiedWorker, setCopiedWorker] = useState(false)
 
   const fetchOrders = useCallback(async () => {
     const res = await fetch('/service/api/orders')
@@ -126,8 +127,9 @@ export default function DashboardPage() {
       const data = await res.json()
       setAssignError(data.error ?? '派单失败，请重试')
     } else {
+      const data = await res.json()
       const workerName = workers.find(w => w.id === selectedWorkerId)?.name ?? ''
-      setModal({ orderId: selectedOrder.id, customerName: selectedOrder.customer_name, workerName })
+      setModal({ orderId: selectedOrder.id, customerName: selectedOrder.customer_name, workerName, workerToken: data.worker_token })
       setSelectedOrder(null)
       await fetchOrders()
     }
@@ -372,11 +374,35 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            <div className="bg-gray-50 rounded-xl p-3 mb-5">
+            <div className="bg-gray-50 rounded-xl p-3 mb-3">
               <p className="text-xs text-gray-400 mb-1.5">客户查看链接</p>
               <p className="text-xs text-blue-600 break-all font-mono leading-relaxed">
                 {typeof window !== 'undefined' ? `${window.location.origin}/track/${modal.orderId}` : ''}
               </p>
+            </div>
+
+            <div className="bg-gray-50 rounded-xl p-3 mb-5">
+              <p className="text-xs text-gray-400 mb-1">师傅小程序路径</p>
+              <p className="text-xs text-gray-700 font-mono mb-2">pages/worker/index</p>
+              <p className="text-xs text-gray-400 mb-1">启动参数（发企业微信卡片用）</p>
+              <p className="text-xs text-orange-600 break-all font-mono leading-relaxed mb-2">
+                orderId={modal.orderId}&amp;token={modal.workerToken}
+              </p>
+              <button
+                onClick={async () => {
+                  await navigator.clipboard.writeText(`orderId=${modal.orderId}&token=${modal.workerToken}`)
+                  setCopiedWorker(true)
+                  setTimeout(() => setCopiedWorker(false), 2000)
+                }}
+                className={[
+                  'w-full text-xs font-medium py-1.5 rounded-lg transition-colors',
+                  copiedWorker
+                    ? 'bg-green-100 text-green-700'
+                    : 'bg-orange-500 hover:bg-orange-600 text-white',
+                ].join(' ')}
+              >
+                {copiedWorker ? '已复制 ✓' : '复制师傅参数'}
+              </button>
             </div>
 
             <div className="flex gap-2">
@@ -389,10 +415,10 @@ export default function DashboardPage() {
                     : 'bg-blue-600 hover:bg-blue-700 text-white',
                 ].join(' ')}
               >
-                {copied ? '已复制 ✓' : '复制链接'}
+                {copied ? '已复制 ✓' : '复制客户链接'}
               </button>
               <button
-                onClick={() => { setModal(null); setCopied(false) }}
+                onClick={() => { setModal(null); setCopied(false); setCopiedWorker(false) }}
                 className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium py-2.5 rounded-xl transition-colors"
               >
                 关闭
