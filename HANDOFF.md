@@ -195,7 +195,57 @@ pm2 restart service-platform
 
 ---
 
-## 9. 编码规范
+## 9. 部署规范
+
+### 用户环境
+
+服务器上有两套用户环境（`root` / `ubuntu`），**service-platform 必须使用 `ubuntu` 用户操作**：
+
+```bash
+su - ubuntu
+cd /var/www/service-platform
+bash deploy.sh
+```
+
+> ⚠️ 不要用 root 操作 service-platform。`agri` 是另一个项目（销售平台），跑在 3000 端口，由 root 用户管理，**不要动**。
+
+---
+
+### 服务进程名
+
+PM2 进程名为 **`service-platform`**（不是 `agri`）：
+
+```bash
+pm2 restart service-platform
+pm2 logs service-platform
+pm2 status service-platform
+```
+
+---
+
+### 部署前检查
+
+```bash
+# 查看是否有冲突
+git pull
+
+# 如果有冲突，强制覆盖本地（放弃本地修改）
+git reset --hard origin/main
+git pull
+```
+
+---
+
+### 域名信息
+
+- 域名：**njfuwu.top**（备案中，预计通过后可用 HTTPS）
+- HTTP 80 → 重定向到 443
+- Nginx 配置文件：`/etc/nginx/sites-enabled/agri`
+- SSL 证书：`/etc/letsencrypt/live/njfuwu.top/`
+
+---
+
+## 10. 编码规范
 
 ### 事件流：只追加，不修改
 `service_events` 是完整的操作历史，**禁止 UPDATE 或 DELETE**。
