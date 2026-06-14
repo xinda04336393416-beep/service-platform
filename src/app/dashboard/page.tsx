@@ -392,7 +392,7 @@ export default function DashboardPage() {
             <div className="bg-gray-50 rounded-xl p-3 mb-3">
               <p className="text-xs text-gray-400 mb-1.5">客户查看链接</p>
               <p className="text-xs text-blue-600 break-all font-mono leading-relaxed">
-                {typeof window !== 'undefined' ? `${window.location.origin}/track/${modal.orderId}` : ''}
+                {typeof window !== 'undefined' ? `${window.location.origin}/service/track/${modal.orderId}` : ''}
               </p>
             </div>
 
@@ -422,7 +422,7 @@ export default function DashboardPage() {
 
             <div className="flex gap-2">
               <button
-                onClick={() => copyLink(`${window.location.origin}/track/${modal.orderId}`)}
+                onClick={() => copyLink(`${window.location.origin}/service/track/${modal.orderId}`)}
                 className={[
                   'flex-1 text-sm font-medium py-2.5 rounded-xl transition-colors',
                   copied
