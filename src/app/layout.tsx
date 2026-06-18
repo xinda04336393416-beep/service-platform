@@ -13,7 +13,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="zh-CN" className="h-full antialiased">
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        {children}
+        <footer style={{ textAlign: 'center', padding: '15px 0', fontSize: '14px', color: '#666' }}>
+          <a href="https://beian.miit.gov.cn/" target="_blank" rel="nofollow" style={{ color: '#666' }}>
+            吉ICP备2026005769号
+          </a>
+        </footer>
+      </body>
     </html>
   );
 }
